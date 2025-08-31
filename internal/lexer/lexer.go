@@ -1,6 +1,9 @@
-package internal
+package lexer
 
-import "unicode/utf8"
+import (
+	"errors"
+	"unicode/utf8"
+)
 
 type lexer struct {
 	input           string
@@ -13,10 +16,14 @@ type lexer struct {
 	col             int
 }
 
-// newLexer creates and initializes a new lexer for the given input string.
+// New creates and initializes a new lexer for the given input string.
 // It reads the first character immediately to set up the lexer's state.
 // The returned *lexer is intended for internal use only.
-func newLexer(input string) *lexer {
+func New(input string) (*lexer, error) {
+	if !utf8.ValidString(input) {
+		return nil, errors.New("input string is not valid UTF-8")
+	}
+
 	l := &lexer{
 		input:           input,
 		length:          len(input),
@@ -28,7 +35,7 @@ func newLexer(input string) *lexer {
 		col:             0,
 	}
 	l.readChar()
-	return l
+	return l, nil
 }
 
 // readChar advances the lexer by one rune in the input, updating its
