@@ -97,7 +97,7 @@ func TestNextToken(t *testing.T) {
 	lexer, err := New(input)
 	assert.NoError(t, err, "Expected no error from New")
 
-	expectedTokens := []struct {
+	tests := []struct {
 		kind    token.TokenKind
 		literal string
 		line    int
@@ -123,7 +123,7 @@ func TestNextToken(t *testing.T) {
 		{token.EOF, "", 8, 15},
 	}
 
-	for i, expected := range expectedTokens {
+	for i, expected := range tests {
 		tok := lexer.NextToken()
 		assert.Equal(t, expected.kind, tok.Kind, "[%d] Expected token kind %q, got %q", i, expected.kind, tok.Kind)
 		assert.Equal(t, expected.literal, tok.Literal, "[%d] Expected token literal %q, got %q", i, expected.literal, tok.Literal)
