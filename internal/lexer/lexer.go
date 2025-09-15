@@ -28,7 +28,7 @@ func New(input string) (*Lexer, error) {
 		return nil, errors.New("input string is not valid UTF-8")
 	}
 
-	input = strings.Replace(input, "\r\n", "\n", -1)
+	input = strings.ReplaceAll(input, "\r\n", "\n")
 	l := &Lexer{
 		input:           input,
 		length:          len(input),
@@ -64,9 +64,22 @@ func (l *Lexer) NextToken() token.Token {
 				l.readChar()
 			}
 			literal = l.input[start:l.currentPosition]
-			tok = token.NewToken(token.TIMESTAMP, literal, line, column)
+
+			if isTimestampLiteral(literal) {
+				tok = token.NewToken(token.TIMESTAMP, literal, line, column)
+			} else {
+				tok = token.NewToken(token.TEXT, literal, line, column)
+			}
 		} else {
-			tok = token.NewToken(token.INDEX, literal, line, column)
+			if l.ch != '\n' && l.ch != 0 {
+				for l.ch != 0 && l.ch != '\n' {
+					l.readChar()
+				}
+				literal = l.input[start:l.currentPosition]
+				tok = token.NewToken(token.TEXT, literal, line, column)
+			} else {
+				tok = token.NewToken(token.INDEX, literal, line, column)
+			}
 		}
 	case l.ch == '\n':
 		line := l.line
@@ -170,4 +183,36 @@ func (l *Lexer) readNumber() string {
 		l.readChar()
 	}
 	return l.input[start:l.currentPosition]
+}
+
+// isTimestampLiteral checks if a string matches the SRT timestamp shape
+// HH:MM:SS,mmm with an exact length of 12 characters (e.g., 00:00:00,000).
+func isTimestampLiteral(s string) bool {
+	if len(s) != 12 {
+		return false
+	}
+
+	// Positions: 0-1 HH, 2 ':', 3-4 MM, 5 ':', 6-7 SS, 8 ',', 9-11 mmm
+	if !unicode.IsDigit(rune(s[0])) || !unicode.IsDigit(rune(s[1])) {
+		return false
+	}
+	if s[2] != ':' {
+		return false
+	}
+	if !unicode.IsDigit(rune(s[3])) || !unicode.IsDigit(rune(s[4])) {
+		return false
+	}
+	if s[5] != ':' {
+		return false
+	}
+	if !unicode.IsDigit(rune(s[6])) || !unicode.IsDigit(rune(s[7])) {
+		return false
+	}
+	if s[8] != ',' {
+		return false
+	}
+	if !unicode.IsDigit(rune(s[9])) || !unicode.IsDigit(rune(s[10])) || !unicode.IsDigit(rune(s[11])) {
+		return false
+	}
+	return true
 }
