@@ -28,7 +28,7 @@ func New(input string) (*Lexer, error) {
 		return nil, errors.New("input string is not valid UTF-8")
 	}
 
-	input = strings.Replace(input, "\r\n", "\n", -1)
+	input = strings.ReplaceAll(input, "\r\n", "\n")
 	l := &Lexer{
 		input:           input,
 		length:          len(input),
