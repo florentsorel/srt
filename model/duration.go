@@ -21,3 +21,7 @@ func (d Duration) String() string {
 
 	return fmt.Sprintf("%02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds)
 }
+
+func (d Duration) Add(offset time.Duration) Duration {
+	return Duration(time.Duration(d) + offset)
+}

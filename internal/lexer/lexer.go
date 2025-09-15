@@ -43,6 +43,7 @@ func New(input string) (*Lexer, error) {
 	return l, nil
 }
 
+// NextToken lexes the next token from the input and returns it.
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
@@ -177,6 +178,7 @@ func (l *Lexer) peekChar(n int) rune {
 	return r
 }
 
+// readNumber reads a sequence of digit runes and returns it as a string.
 func (l *Lexer) readNumber() string {
 	start := l.currentPosition
 	for unicode.IsDigit(l.ch) {

@@ -17,6 +17,7 @@ type Parser struct {
 	nextToken    token.Token
 }
 
+// New creates a new parser with the given lexer and initializes its state.
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{lexer: l}
 	p.readToken()
@@ -24,11 +25,13 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
+// readToken advances the parser to the next token.
 func (p *Parser) readToken() {
 	p.currentToken = p.nextToken
 	p.nextToken = p.lexer.NextToken()
 }
 
+// Parse parses the entire input and returns a slice of cues or an error.
 func (p *Parser) Parse() ([]model.Cue, error) {
 	var cues []model.Cue
 
@@ -43,6 +46,7 @@ func (p *Parser) Parse() ([]model.Cue, error) {
 	return cues, nil
 }
 
+// parseCue parses a single cue from the token stream.
 func (p *Parser) parseCue() (*model.Cue, error) {
 	var c model.Cue
 
@@ -123,6 +127,7 @@ func (p *Parser) parseCue() (*model.Cue, error) {
 	return &c, nil
 }
 
+// parseSRTTime parses a time string in the format "HH:MM:SS,mmm" and returns a model.Duration.
 func parseSRTTime(s string) (model.Duration, error) {
 	var h, m, sec, ms int
 	_, err := fmt.Sscanf(s, "%02d:%02d:%02d,%03d", &h, &m, &sec, &ms)
